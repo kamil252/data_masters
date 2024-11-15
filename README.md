@@ -1,1 +1,3 @@
-# data_masters
+Kamil Ciosek
+Nina Górczyńska
+Oskar Kanigowski
