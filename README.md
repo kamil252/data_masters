@@ -1,3 +1,3 @@
-Kamil Ciosek
-Nina Górczyńska
+Kamil Ciosek,
+Nina Górczyńska,
 Oskar Kanigowski
