@@ -1,9 +1,11 @@
 #istalacja i wczytanie bibliotek
 if (!require("naniar")) install.packages("naniar")
 if (!require("mice")) install.packages("mice")
+if (!require("visdat")) install.packages("visdat")
 
 library(naniar)
 library(mice)
+library(visdat)
 
 #wczytanie danych
 data <- read.csv("dataset/raw_data.csv")
@@ -58,8 +60,14 @@ proportions <- do.call(rbind, lapply(names(columns_to_analyze), function(col_nam
   return(dane)
 }))
 
-
+proportions
 proportions <- proportions[, c("kategorie", "odpowiedzi", "liczba_obserwacji")]
 
-
 print(proportions)
+
+#typy danych
+data_class <- data.frame(class = sapply(data, class))
+data_class
+
+#wizualizacja typow danych
+vis_dat(data)
