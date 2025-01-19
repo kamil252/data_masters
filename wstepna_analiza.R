@@ -29,6 +29,8 @@ data[data == " "] <- NA
 
 #wizualizacja braków danych
 vis_miss(data)
+gg_miss_var(data)
+gg_miss_case(data)
 
 #wzorce braków danych
 md.pattern(data, plot = TRUE, rotate.names = TRUE)
