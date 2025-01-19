@@ -2,10 +2,12 @@
 if (!require("naniar")) install.packages("naniar")
 if (!require("mice")) install.packages("mice")
 if (!require("visdat")) install.packages("visdat")
+if (!require("gridExtra")) install.packages("gridExtra")
 
 library(naniar)
 library(mice)
 library(visdat)
+library(gridExtra)
 
 #wczytanie danych
 data <- read.csv("dataset/raw_data.csv")
@@ -35,6 +37,12 @@ gg_miss_case(data)
 #wzorce braków danych
 md.pattern(data, plot = TRUE, rotate.names = TRUE)
 gg_miss_upset(data)
+
+a1 <- gg_miss_fct(data, fct = Gender)
+a2 <- gg_miss_fct(data, fct = Education)
+a3 <- gg_miss_fct(data, fct = Self_Employed)
+a4 <- gg_miss_fct(data, fct = Property_Area)
+grid.arrange(a1, a2, a3, a4, nrow=2)
 
 #unikatowe wartości
 unique_counts <- data.frame(
