@@ -23,6 +23,10 @@ count_na <- function(x) {
 na_count <- sapply(data, count_na)
 na_count
 
+#zamiana pustych ciagow na NA
+data[data == ""] <- NA
+data[data == " "] <- NA
+
 #wizualizacja braków danych
 vis_miss(data)
 
@@ -30,7 +34,7 @@ vis_miss(data)
 md.pattern(data, plot = TRUE, rotate.names = TRUE)
 gg_miss_upset(data)
 
-#Unikatowe wartości
+#unikatowe wartości
 unique_counts <- data.frame(
   unikalne_wartosci = vapply(data, function(kolumna) {
     length(setdiff(unique(kolumna), NA)) 
@@ -38,7 +42,7 @@ unique_counts <- data.frame(
 )
 unique_counts
 
-#Proporcje odpowiedzi dla wybranych kategorii
+#proporcje odpowiedzi dla wybranych kategorii
 columns_to_analyze <- list(
   Gender = data$Gender,
   Married = data$Married,
@@ -53,17 +57,14 @@ columns_to_analyze <- list(
 
 
 proportions <- do.call(rbind, lapply(names(columns_to_analyze), function(col_name) {
-  kolumna <- columns_to_analyze[[col_name]]
-  dane <- as.data.frame(table(kolumna)) # Liczenie liczby wystąpień
-  colnames(dane) <- c("odpowiedzi", "liczba_obserwacji") # Nadanie nazw kolumn
-  dane$kategorie <- col_name # Dodanie kategorii
+  kolumna <- columns_to_analyze[col_name]
+  dane <- as.data.frame(table(kolumna))
+  colnames(dane) <- c("odpowiedzi", "liczba_obserwacji") 
+  dane$kategorie <- col_name 
   return(dane)
 }))
 
 proportions
-proportions <- proportions[, c("kategorie", "odpowiedzi", "liczba_obserwacji")]
-
-print(proportions)
 
 #typy danych
 data_class <- data.frame(class = sapply(data, class))
