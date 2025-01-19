@@ -1,12 +1,33 @@
-#sprawdzenie danych
-summary (data)
+#istalacja i wczytanie bibliotek
+if (!require("naniar")) install.packages("naniar")
+if (!require("mice")) install.packages("mice")
+
+library(naniar)
+library(mice)
+
+#wczytanie danych
+data <- read.csv("dataset/raw_data.csv")
+
+#podstawowe statystyki
+summary(data)
+
+#struktura danych
 str(data)
+
 #obliczanie liczby NA (brakujących wartości) uwzględniając "puste ciągi"
 count_na <- function(x) {
   sum(is.na(x) | x == "" | x == " ")
 }
 na_count <- sapply(data, count_na)
 na_count
+
+#wizualizacja braków danych
+vis_miss(data)
+
+#wzorce braków danych
+md.pattern(data, plot = TRUE, rotate.names = TRUE)
+gg_miss_upset(data)
+
 #Unikatowe wartości
 unique_counts <- data.frame(
   unikalne_wartosci = vapply(data, function(kolumna) {
@@ -14,6 +35,7 @@ unique_counts <- data.frame(
   }, numeric(1))
 )
 unique_counts
+
 #Proporcje odpowiedzi dla wybranych kategorii
 columns_to_analyze <- list(
   Gender = data$Gender,
