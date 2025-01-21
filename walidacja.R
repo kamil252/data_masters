@@ -21,3 +21,13 @@ reguly_walidacyjne <- validator(
   is.numeric(data$Dependents) & data$Dependents >= 0 | is.na(data$Dependents)
   
 )
+
+
+#Walidacja danych
+wyniki_walidacji <- confront(data, reguly_walidacyjne)
+
+#Podsumowanie wynikow walidacji
+summary(wyniki_walidacji)
+
+#Raport walidacji
+walidacja_raport <- as.data.frame(wyniki_walidacji)
