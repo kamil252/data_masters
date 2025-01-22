@@ -60,3 +60,19 @@ outliers <- column[column < lower_bound | column > upper_bound]
   ))
 }
 
+#Analiza wartosci dla zmiennych ApplicantIncome, CoapplicantIncome i LoanAmount
+ApplicantIncomeOutliers <- identyfikacja(data$ApplicantIncome)
+CoapplicantIncomeOutliers <- identyfikacja(data$CoapplicantIncome)
+LoanAmountOutliers <- identyfikacja(data$LoanAmount)
+
+
+#Wyswietlenie wynikow
+print("Wartosci odstajace dla ApplicantIncome")
+print(ApplicantIncomeOutliers$outliers)
+print("Wartosci odstajace dla CoapplicantIncome")
+print(CoapplicantIncomeOutliers$outliers)
+print("Wartosci odstajace dla LoanAmount")
+print(LoanAmountOutliers$outliers)
+
+
+
