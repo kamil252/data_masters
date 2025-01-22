@@ -40,3 +40,23 @@ histogramLoanAmount <- ggplot(data) +
   theme_minimal()
 
 gridExtra::grid.arrange(pudelkowyApplicantIncome, pudelkowyCoapplicantIncome, pudelkowyLoanAmount, histogramApplicantIncome, histogramCoapplicantIncome, histogramLoanAmount, nrow=2)
+
+
+#Identyfikacja wartosci odstajacych
+
+#Definiujemy funkcję "identyfikacja",ktora pomoze nam w identyfikacji wartosci odstajacych za pomoca IQR - 
+identyfikacja <- function(column) {
+  Q1 <- quantile(column, 0.25, na.rm = TRUE)
+  Q3 <- quantile(column, 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  lower_bound <- Q1 - 1.5 * IQR
+  upper_bound <- Q3 + 1.5 * IQR
+  
+outliers <- column[column < lower_bound | column > upper_bound]
+  return(list(
+    lower_bound = lower_bound,
+    upper_bound = upper_bound,
+    outliers = outliers
+  ))
+}
+
