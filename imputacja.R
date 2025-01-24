@@ -1,13 +1,18 @@
 #instalacja pakietów
 if (!require("mice")) install.packages("mice")
 if (!require("dplyr")) install.packages("dplyr")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("gridExtra")) install.packages("gridExtra")
 
+library(gridExtra)
+library(dplyr)
 library(mice)
 library(dplyr)
+library(mice)
 
 #wczytanie danych
 data <- read.csv("dataset/clean_data.csv")
-
+pre_imp <- vis_miss(data)
 # imputacja danych - mediana dla "Married"
 if ("Married" %in% colnames(data)) {
   # Obliczenie mediany dla zmiennej "Married" (bez NA)
@@ -16,6 +21,7 @@ if ("Married" %in% colnames(data)) {
   #Zastąpienie braków danych w "Married" medianą
   data$Married[is.na(data$Married)] <- mediana_married
 }
+
 #imputacja pozostalych - metoda mice
 
 variables_with_na <- c("Gender", "Dependents", "Self_Employed", 
@@ -40,3 +46,11 @@ print(colSums(is.na(data)))
 
 print("Podsumowanie danych po imputacji:")
 summary(data)
+
+
+post_imp <- vis_miss(data)
+
+grid.arrange(pre_imp, post_imp)
+
+#zapisanie uzupełnionych danych
+write.csv(data, "dataset/full_data.csv")
