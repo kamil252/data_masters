@@ -3,8 +3,8 @@ library(ggplot2)
 library(dplyr)
 
 library(readr)
-data <- read_csv("dataset/clean_data.csv")
-View(clean_data)
+data <- read_csv("dataset/full_data.csv")
+View(data)
 
 
 #Wykresy pudelkowe dla ApplicantIncome, CoapplicantIncome oraz LoanAmount
