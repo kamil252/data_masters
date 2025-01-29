@@ -42,8 +42,23 @@ data %>%
   bold_labels() %>% 
   add_p(pvalue_fun = ~ style_pvalue(.x, digits = 2))
 
+#Badamy korelacje miedzy zmiennymi
+korelacja <- data.frame(cor(data))
+korelacja
 
+#Wybrane korelacje (wybieramy wieksze od 0,5 aby wybrac korelacje silna wg Pearsona)
+wizualizacja_kor <- as.data.frame(as.table(cor(korelacja)))
 
+bez_duplikatow <- wizualizacja_kor[order(wizualizacja_kor$Freq, decreasing = TRUE),]
+bez_duplikatow <- distinct(bez_duplikatow, Freq, .keep_all = TRUE)
+
+if (bez_duplikatow[1,1] == bez_duplikatow[1,2]) {
+  bez_duplikatow <- bez_duplikatow[-1,]
+  row.names(bez_duplikatow) <- NULL
+}
+
+silna_korelacja <- subset(bez_duplikatow, bez_duplikatow$Freq >= abs(0.5))
+silna_korelacja
 
 
 
