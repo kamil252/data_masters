@@ -1,4 +1,9 @@
+install.packages("gtsummary")
+library(gtsummary)
+library(tidyverse)
 library(readr)
+
+
 data <- read_csv("dataset/types_of_clients_data.csv")
 
 
@@ -18,4 +23,27 @@ statystyki <-
               "Min"= ~min(IncomePerDependent),
               "Max"= ~max(IncomePerDependent)
          ))
+
+#Rozkład w tabeli
+
+data %>%
+  select(IncomePerDependent, Loan_Status) %>%
+  tbl_summary(
+    by=Loan_Status,
+    type = all_continuous() ~ "continuous2",
+    statistic = all_continuous() ~ c(
+      "{N_nonmiss}","{mean}","{sd}",
+      "{median} ({p25}, {p75})",
+      "{min}, {max}"),
+    missing = "no",
+    label = IncomePerDependent ~ "Przychód na jedną osobę w gospodarstwie domowym") %>%
+  modify_header(label ~ "**Zmienna**") %>%
+  modify_caption("**Rozkład IncomePerDependent wg Loan_Status**") %>%
+  bold_labels() %>% 
+  add_p(pvalue_fun = ~ style_pvalue(.x, digits = 2))
+
+
+
+
+
 
