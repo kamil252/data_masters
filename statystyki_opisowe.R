@@ -1,7 +1,12 @@
+install.packages("ggstatsplot")
+install.packages("corrplot")
 install.packages("gtsummary")
 library(gtsummary)
 library(tidyverse)
 library(readr)
+library(ggplot2)
+library(ggstatsplot)
+library(corrplot)
 
 
 data <- read_csv("dataset/types_of_clients_data.csv")
@@ -60,5 +65,9 @@ if (bez_duplikatow[1,1] == bez_duplikatow[1,2]) {
 silna_korelacja <- subset(bez_duplikatow, bez_duplikatow$Freq >= abs(0.5))
 silna_korelacja
 
+#Macierz korelacji
 
+macierz_korelacji <- cor(korelacja, use="complete.obs")
+corrplot(macierz_korelacji, method = "color", type = "upper", order = "hclust",
+         tl.col = "black", tl.srt = 60)
 
