@@ -1,9 +1,12 @@
 ---
-title: "Analiza danych - raport końcowy"
+title: "Analiza danych"
 author: "K. Ciosek, O. Kanigowski, N. Górczyńska"
 date: "2025-01-19"
 output: rmdformats::readthedown
+css: "style.css"
 ---
+
+![](images/wzie.png){width="438"}
 
 ## 6. Wnioskowanie (testy statystyczne)
 
@@ -52,7 +55,7 @@ W ramach drugie modelu przyjęto jako zmienne objaśniające dwie zmienne o najw
 
 Wszystkie analizowane zmienne są istotne statystycznie przy poziomie istotności 0.05.
 
-*Historia kredytowa:*
+**Historia kredytowa:**
 
 ```{r echo=FALSE}
 ggbarstats(
