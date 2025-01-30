@@ -5,26 +5,45 @@ date: "2025-01-19"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## 6. Wnioskowanie (testy statystyczne)
+
+Wnioskowanie statystyczne to proces podejmowania decyzji lub formułowania wniosków na podstawie danych. W ramach projektu podjęto próbę zdefinowania wzajemnych zależności pomiędzy zmiennymi opisującymi osoby wnioskujące o kredyt, w kontekście finalnej decyzji banku o udzieleniu pożyczki, lub też decyzji odmownej.
+
+```{r echo=FALSE, message = FALSE, warning = FALSE}
+data <- read.csv("dataset/types_of_clients_data.csv")
+
+if (!require(ggstatsplot)) install.packages("ggstatsplot")
+
+library(ggstatsplot)
 ```
 
-## R Markdown
+### 6.1. Model regresji logistycznej
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+W celu przeprowadzenia wnioskowania wykorzystano model regresji logistycznej (logit) - tóry jest używany do analizy zmiennych zależnych o charakterze binarnym, takich jaką jest zmienna opisująca decyzję o przyznaniu pożyczki.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+logit1 <- glm(Loan_Status ~ Married + ApplicantIncome + CoapplicantIncome + Dependents + Education + LoanAmount + Credit_History, 
+              data = data, family = binomial)
+summary(logit1)
 
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+Dla utworzonego modelu zmienną objaśniającą jest Loan_Status informujący o decyzji przyznanie pożyczki, natomiast zmienne objaśniające to pozostałe dostępne informacje o potencjalnych kredytobiorcach.
 
-You can also embed plots, for example:
+Jak widać dla utworzonego modelu jedynie zmienne informujące o stanie cywilnym, poziomie oraz hisotrii kredytowej są istotne statystycznie.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+logit2 <- glm(Loan_Status ~ Married + Credit_History, 
+              data = data, family = binomial)
+summary(logit2)
+
+OR <- exp(logit2$coefficients)
+print(OR)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+W ramach drugie modelu przyjęto jako zmienne objaśniające dwie zmienne o największej istotności statystycznej w stosunku do wszystkich danych. Można stąd wysunąć wniosek, że zmiennymi o największym wpływie na decyzję o przyzaniu kredytu są zmienne mówiące o stanie cywilnym oraz hisotrii kredytowej.
+
+*Zakładając, że tylko te dwie wartości determinowałyby decyzję:*
+
+-   bycie w zwiazku malzenskim zwieksza szanse na otrzymanie kredytu o 73%.
+-   natomiast pozytywna historia kredytowa zwieksza szanse na otrzymanie kredytu az o 3248%
