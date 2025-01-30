@@ -22,7 +22,7 @@ library(ggstatsplot)
 W celu przeprowadzenia wnioskowania wykorzystano model regresji logistycznej (logit) - tóry jest używany do analizy zmiennych zależnych o charakterze binarnym, takich jaką jest zmienna opisująca decyzję o przyznaniu pożyczki.
 
 ```{r}
-logit1 <- glm(Loan_Status ~ Married + ApplicantIncome + CoapplicantIncome + Dependents + Education + LoanAmount + Credit_History, 
+logit1 <- glm(Loan_Status ~ Married + ApplicantIncome + CoapplicantIncome +Dependents + Education + LoanAmount + Credit_History, 
               data = data, family = binomial)
 summary(logit1)
 
@@ -47,3 +47,60 @@ W ramach drugie modelu przyjęto jako zmienne objaśniające dwie zmienne o najw
 
 -   bycie w zwiazku malzenskim zwieksza szanse na otrzymanie kredytu o 73%.
 -   natomiast pozytywna historia kredytowa zwieksza szanse na otrzymanie kredytu az o 3248%
+
+### 6.2. Wizualizacja testów statystycznych
+
+Wszystkie analizowane zmienne są istotne statystycznie przy poziomie istotności 0.05. 
+
+*Historia kredytowa: *
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Credit_History,
+  y = Loan_Status,
+  data = data
+)
+```
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Credit_History,
+  x = Loan_Status,
+  data = data
+)
+```
+
+*Stan cywilny: *
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Married,
+  y = Loan_Status,
+  data = data
+)
+
+```
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Married,
+  x = Loan_Status,
+  data = data
+)
+```
+
+*Poziom edukacji: *
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Education,
+  y = Loan_Status,
+  data = data
+)
+```
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Education,
+  x = Loan_Status,
+  data = data
+)
+```
+
