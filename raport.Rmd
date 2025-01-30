@@ -1,8 +1,8 @@
 ---
 title: "Analiza danych - raport końcowy"
-author: "Kamil Ciosek; Oskar Kanigowski; Nina Górczyńska"
+author: "K. Ciosek, O. Kanigowski, N. Górczyńska"
 date: "2025-01-19"
-output: html_document
+output: rmdformats::readthedown
 ---
 
 ## 6. Wnioskowanie (testy statystyczne)
@@ -50,9 +50,9 @@ W ramach drugie modelu przyjęto jako zmienne objaśniające dwie zmienne o najw
 
 ### 6.2. Wizualizacja testów statystycznych
 
-Wszystkie analizowane zmienne są istotne statystycznie przy poziomie istotności 0.05. 
+Wszystkie analizowane zmienne są istotne statystycznie przy poziomie istotności 0.05.
 
-*Historia kredytowa: *
+*Historia kredytowa:*
 
 ```{r echo=FALSE}
 ggbarstats(
@@ -61,6 +61,7 @@ ggbarstats(
   data = data
 )
 ```
+
 ```{r echo=FALSE}
 ggbetweenstats(
   y = Credit_History,
@@ -69,7 +70,7 @@ ggbetweenstats(
 )
 ```
 
-*Stan cywilny: *
+*Stan cywilny:*
 
 ```{r echo=FALSE}
 ggbarstats(
@@ -79,6 +80,7 @@ ggbarstats(
 )
 
 ```
+
 ```{r echo=FALSE}
 ggbetweenstats(
   y = Married,
@@ -87,7 +89,7 @@ ggbetweenstats(
 )
 ```
 
-*Poziom edukacji: *
+*Poziom edukacji:*
 
 ```{r echo=FALSE}
 ggbarstats(
@@ -96,6 +98,7 @@ ggbarstats(
   data = data
 )
 ```
+
 ```{r echo=FALSE}
 ggbetweenstats(
   y = Education,
@@ -104,3 +107,14 @@ ggbetweenstats(
 )
 ```
 
+## 7. Podsumowanie i wnioski końcowe
+
+W ramach przeprowadzonej analizy danych zastosowano szereg technik przetwarzania, wizualizacji, analizy opisowej oraz wnioskowania statystycznego, które pozwoliły na dogłębne zrozumienie zależności między zmiennymi a decyzją o przyznaniu pożyczki.
+
+-   Pierwszym etapem pracy był data wrangling, który obejmował wstępną analizę danych, oczyszczanie zbioru danych, radzenie sobie z wartościami odstającymi oraz przygotowanie danych do dalszej wizualizacji.
+-   Następnie podjęto próbę rozwiązania głównego problemu postawionego przed danymi - wyodrębnieniu osób kwalifikujących się do kredytu. Przyjęto że wyznacznikiem będzie tu kwota dochodów gospodarstwa domowego w zależności od liczby osób zależnych. Podjęto również próbę klasteryzacji klientów na dwie grupy.
+-   Kolejnym krokiem było rozwiązanie kwestii wartości odstających. Problem ten rozwiązał się samoczynnie poprzez podział klientów ze względu na zarobki w punkcie 2.
+-   Wizualizacja danych została przeprowadzona przy użyciu wykresów pudełkowychi słupkowych.
+-   Wreszcie, na etapie wnioskowania statystycznego przeprowadzono odpowiednie testy (w tym budowę modelu), które miały na celu identyfikację zmiennych istotnych statystycznie w kontekście przyznania pożyczki.
+
+Podczas realizacji projektu udało się rozwiązać zadanie stojące przed bazą danych poprzez zaproponowanie dwóch podziałów klientów do których bank mógłby skierować swoją ofertę - na podstawie dochodu gospodarstwa w zależności od liczby osób zależnych, oraz na podstawie algorytmu klastrowania. Wykazano również, że stan cywilny oraz historia kredytowa mają największy wpływ na decyzję o przyznaniu pożyczki.
