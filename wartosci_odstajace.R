@@ -113,19 +113,3 @@ print(CoapplicantIncomeOutliers$outliers)
 print("Wartosci odstajace dla LoanAmount")
 print(LoanAmountOutliers$outliers)
 
-#Sprawdzamy, od czego zależy decyzja pozytywna lub negatywna otrzymania kredytu
-
-logit1 <- glm(Loan_Status ~ Married + ApplicantIncome + CoapplicantIncome + Dependents + Education + LoanAmount + Credit_History, 
-             data = data, family = binomial)
-summary(logit1)
-#Tu zmiennymi istotnymi statystycznie jest zmienna Married oraz Credit_History
-
-#Zostawiamy tylko Married i Credit_History
-logit2 <- glm(Loan_Status ~ Married + Credit_History, 
-              data = data, family = binomial)
-summary(logit2)
-#Liczymy ilorazy szans
-OR <- exp(logit2$coefficients)
-OR
-#Bycie w zwiazku malzenskim zwieksza szanse na otrzymanie kredytu o 73%.
-#Natomiast pozytywna historia kredytowa zwieksza szanse na otrzymanie kredytu az o 3248%
