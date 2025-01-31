@@ -5,26 +5,36 @@ date: "2025-01-19"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+## Wprowadzenie
+
+#### Pożyczki
+
+Spośród wszystkich branż, domena ubezpieczeniowa ma największe zastosowanie analityki i metod nauki o danych. Ten zestaw danych zapewni ci wystarczający przedsmak pracy nad zestawami danych z firm ubezpieczeniowych, z jakimi wyzwaniami się mierzą, jakie strategie są stosowane, jakie zmienne wpływają na wynik itp. Jest to problem klasyfikacji. Dane mają 615 wierszy i 13 kolumn.
+
+#### Problem
+
+Firma chce zautomatyzować proces kwalifikowania się do pożyczki (w czasie rzeczywistym) w oparciu o dane klienta podane podczas wypełniania wniosku online. Dane te obejmują płeć, stan cywilny, wykształcenie, liczbę osób na utrzymaniu, dochód, kwotę pożyczki, historię kredytową i inne. Aby zautomatyzować ten proces, firma postawiła sobie za cel zidentyfikowanie segmentów klientów, którzy kwalifikują się do otrzymania kwoty pożyczki, aby móc skierować do nich konkretną ofertę. W tym przypadku dostarczono częściowy zestaw danych.
+
+### Opis bazy danych
+
+Baza składa się z 13 kolumn, a te z kolei zawierają następujące wartości:
+
+1.  **Loan_ID** - indywidualny numer ID każdej obserwacji,
+2.  **Gender** - informacja, jaka płeć jest przyjęta w danej obserwacji,
+3.  **Married** - informacja, czy osoba jest w związku małżeńskim,
+4.  **Dependents** - ilość osób zależnych (finansowo),
+5.  **Education** - informacja, czy dana osoba ukończyła studia,
+6.  **Self_Employed** - informacja, czy osoba jest samozatrudniona,
+7.  **ApplicantIncome** - dochód wnioskodawcy o pożyczkę,
+8.  **CoapplicantIncome** - dochód współwnioskodawcy o pożyczkę,
+9.  **LoanAmount** - kwota pożyczki,
+10. **Loan_Amount_Term** - okres kredytowania,
+11. **Credit_History** - historia kredytowa,
+12. **Property_Area** - obszar nieruchomości,
+13. **Loan_Status** - informacja, czy udzielono kredytu 
+
+```{#wczytanie danych}
+data <- read.csv("dataset/raw_data.csv")
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## 
