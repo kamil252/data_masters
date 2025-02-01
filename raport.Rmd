@@ -30,7 +30,7 @@ Baza składa się z 13 kolumn, a te z kolei zawierają następujące wartości:
 9.  **LoanAmount** - kwota pożyczki,
 10. **Loan_Amount_Term** - okres kredytowania,
 11. **Credit_History** - historia kredytowa,
-12. **Property_Area** - obszar nieruchomości,
+12. **Property_Area** - obszar zamieszkania,
 13. **Loan_Status** - informacja, czy udzielono kredytu 
 
 ```{r Wczytanie danych, echo=FALSE}
@@ -97,6 +97,89 @@ ggplot(subset(types_of_clients_data, type_of_client == "Premium"),
 ```
 
 Klienci **Premium** mają **wyższe i bardziej zróżnicowane dochody** niż klienci Basic, szczególnie w obszarach **wiejskich**. Największa **zmienność dochodów** w obu grupach występuje w rejonach **wiejskich**.
+
+4.2. Na **wykresach słupkowych** zaprezentujemy zmienne: Gender, Married, Dependents oraz Education.
+
+```{r, wykresy slupkowe, echo=FALSE}
+library(ggplot2)
+library(gridExtra)
+full_data <- read.csv("dataset/types_of_clients_data.csv")
+
+
+
+full_data$Gender <- factor(full_data$Gender, levels = c(0, 1), labels = c("Female", "Male"))
+full_data$Married <- factor(full_data$Married, levels = c(0, 1), labels = c("No", "Yes"))
+full_data$Dependents <- factor(full_data$Dependents, levels = c(0, 1, 2, 3), labels = c("0", "1", "2", "3+"))
+full_data$Education <- factor(full_data$Education, levels = c(0, 1), labels = c("Not Graduate", "Graduate"))
+full_data$Self_Employed <- factor(full_data$Self_Employed, levels = c(0, 1), labels = c("No", "Yes"))
+full_data$Credit_History <- factor(full_data$Credit_History, levels = c(0, 1), labels = c("No", "Yes"))
+full_data$Property_Area <- factor(full_data$Property_Area, levels = c(1, 2, 3), labels = c("Urban", "Semiurban", "Rural"))
+full_data$Loan_Status <- factor(full_data$Loan_Status, levels = c(0, 1), labels = c("Rejected", "Approved"))
+
+```
+
+```{r slupkowe, echo=TRUE}
+plot1 <- ggplot(full_data, aes(x = Gender, fill = Gender)) +
+  geom_bar() +
+  labs(x = "Gender", y = "Liczba obserwacji", fill = "Gender") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+plot2 <- ggplot(full_data, aes(x = Married, fill = Married)) +
+  geom_bar() +
+  labs(x = "Married", y = "Liczba obserwacji", fill = "Married") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+plot3 <- ggplot(full_data, aes(x = Dependents, fill = Dependents)) +
+  geom_bar() +
+  labs(x = "Dependents", y = "Liczba obserwacji", fill = "Dependents") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+plot4 <- ggplot(full_data, aes(x = Education, fill = Education)) +
+  geom_bar() +
+  labs(x = "Education", y = "Liczba obserwacji", fill = "Education") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Pastel1")
+
+plot5 <- ggplot(full_data, aes(x = Self_Employed, fill = Self_Employed)) +
+  geom_bar() +
+  labs(x = "Self Employed", y = "Liczba obserwacji", fill = "Self Employed") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Pastel2")
+
+plot6 <- ggplot(full_data, aes(x = Credit_History, fill = Credit_History)) +
+  geom_bar() +
+  labs(x = "Credit History", y = "Liczba obserwacji", fill = "Credit History") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+plot7 <- ggplot(full_data, aes(x = Property_Area, fill = Property_Area)) +
+  geom_bar() +
+  labs(x = "Property Area", y = "Liczba obserwacji", fill = "Property Area") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Accent")
+
+plot8 <- ggplot(full_data, aes(x = Loan_Status, fill = Loan_Status)) +
+  geom_bar() +
+  labs(x = "Loan Status", y = "Liczba obserwacji", fill = "Loan Status") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+```
+
+```{r zestawienie 1-4, echo=TRUE}
+grid.arrange(plot1, plot2, plot3, plot4, nrow = 2)
+```
+
+Z powyższych wykresów możemy wywnioskować, że w danych dużo większy udział mają **mężczyźni** niż kobiety. Więcej jest także osób **w związku małżeńskim** niż singli, zdecydowaną większością są osoby, które **nie mają pod sobą osób zależnych** oraz o kredyt aplikuje więcej osób ze **skończonymi studiami**.
+
+```{r zestawienie 5-8, echo=TRUE}
+grid.arrange(plot5, plot6, plot7, plot8, nrow = 2)
+```
+
+Dalsze wykresy pokazują, że o kredyt aplikuje zdecydowanie **mniej** osób na **samozatrudnieniu** oraz **bez historii kredytowej**. Biorąc pod uwagę obszar zamieszkania, najwięcej jest osób z obszarów półmiejskich, następnie z obszarów wiejskich, a najmniej osób z miast. Zdecydowanie **więcej** jest **udzielonych kredytów** niż tych odrzuconych.
 
 # 5. Analiza opisowa
 
