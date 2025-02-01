@@ -33,7 +33,8 @@ Baza składa się z 13 kolumn, a te z kolei zawierają następujące wartości:
 12. **Property_Area** - obszar nieruchomości,
 13. **Loan_Status** - informacja, czy udzielono kredytu 
 
-```{r echo=FALSE}
+```{r Wczytanie danych, echo=FALSE}
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
 #wczytanie danych
 data <- read.csv("dataset/raw_data.csv")
 ```
@@ -44,7 +45,12 @@ Pierwszym etapem analiz wszelkiego typu danych jest ich **analiza opisowa**. Poz
 
 **5.1. Statystyki opisowe** pomagają szybko zrozumieć, jakie wartości dominują, jak bardzo dane są zróżnicowane i czy występują jakieś nietypowe przypadki. Dzięki nim mogliśmy np. sprawdzić, jaki jest przeciętny dochód wnioskodawcy, jak bardzo dochody różnią się między aplikantami, albo czy w danych są osoby, które odstają od reszty.
 
-```{r echo=TRUE}
+```{r wczytanie nowej bazy, echo =FALSE}
+
+data1 <- read.csv("dataset/types_of_clients_data.csv")
+```
+
+```{r Statystyki opisowe, echo=TRUE}
 #Statystyki opisowe
 statystyki <-
   list("IncomePerDependent" =
@@ -62,9 +68,22 @@ statystyki <-
          ))
 ```
 
-```{r echo=TRUE}
+```{r biblioteki, echo=FALSE}
+install.packages("ggstatsplot")
+install.packages("corrplot")
+install.packages("gtsummary")
+library(gtsummary)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(ggstatsplot)
+library(corrplot)
+library(dplyr)
+```
+
+```{r Rozklad w tabeli, echo=TRUE}
 #Rozkład w tabeli
-data %>%
+data1 %>%
   select(IncomePerDependent, Loan_Status) %>%
   tbl_summary(
     by=Loan_Status,
@@ -87,15 +106,15 @@ Tabela przedstawia **rozkład przychodu na jedną osobę w gospodarstwie domowym
 
 U nas wygląda to następująco:
 
-```{r echo=TRUE}
+```{r Korelacja, echo=TRUE}
 #Badamy korelacje miedzy zmiennymi
-korelacja <- data.frame(cor(data))
+korelacja <- data.frame(cor(data1))
 korelacja
 ```
 
 Zdecydowaliśmy się ograniczyć korelacje, aby ukazywały się tylko te **od 0,5 do 1** (korelacja silna).
 
-```{r echo=TRUE}
+```{r Wizualizacja korelacji, echo=TRUE}
 wizualizacja_kor <- as.data.frame(as.table(cor(korelacja)))
 
 bez_duplikatow <- wizualizacja_kor[order(wizualizacja_kor$Freq, decreasing = TRUE),]
@@ -112,7 +131,7 @@ silna_korelacja
 
 W celu bardziej przejrzystego przedstawienia danych, prezentujemy naszą **macierz korelacji**:
 
-```{r echo=TRUE}
+```{r Macierz korelac, echo=TRUE}
 #Macierz korelacji
 macierz_korelacji <- cor(korelacja, use="complete.obs")
 corrplot(macierz_korelacji, method = "color", type = "upper", order = "hclust",
