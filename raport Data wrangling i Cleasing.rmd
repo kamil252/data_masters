@@ -1,0 +1,291 @@
+---
+title: "Analiza danych - raport końcowy"
+author: "K. Ciosek, O. Kanigowski, N. Górczyńska"
+date: "2025-01-19"
+output: rmdformats::readthedown
+---
+## 2. Data Wrangling, Cleasing
+Data Wrangling odnosi się do procesu przekształcania, reorganizacji i mapowania surowych danych w użyteczny format gotowy do analizy. Data Cleansing, zwane także czyszczeniem danych, odnosi się do procesu identyfikacji i usuwania błędów, niespójności oraz niekompletnych informacji w zbiorach danych. Celem tego procesu jest poprawa jakości danych, co jest kluczowe dla analizy oraz podejmowania trafnych decyzji opartych na danych.
+
+1. Data Wrangling
+
+```{r echo=FALSE}
+#istalacja i wczytanie bibliotek
+if (!require("naniar")) install.packages("naniar")
+if (!require("mice")) install.packages("mice")
+if (!require("visdat")) install.packages("visdat")
+if (!require("gridExtra")) install.packages("gridExtra")
+
+library(naniar)
+library(mice)
+library(visdat)
+library(gridExtra)
+
+#wczytanie danych
+data <- read.csv("dataset/raw_data.csv")
+```
+1.1 Obliczanie NA
+```{r echo=FALSE}
+#podstawowe statystyki
+summary(data)
+
+#struktura danych
+str(data)
+
+#obliczanie liczby NA (brakujących wartości) uwzględniając "puste ciągi"
+count_na <- function(x) {
+  sum(is.na(x) | x == "" | x == " ")
+}
+na_count <- sapply(data, count_na)
+na_count
+```
+Tworzona jest funkcja count_na(), która:
+Sprawdza, czy wartość w danej kolumnie to NA (brak wartości),
+sprawdza, czy wartość to pusty ciąg "" lub spacja " ", traktując je jako brakujące.
+Sumuje wszystkie brakujące wartości w danej kolumnie.
+```{r echo=FALSE}
+#zamiana pustych ciagow na NA
+data[data == ""] <- NA
+data[data == " "] <- NA
+
+#wizualizacja braków danych
+vis_miss(data)
+gg_miss_var(data)
+gg_miss_case(data)
+```
+vis_miss: Tworzy wizualizację brakujących wartości w całym zbiorze danych.
+gg_miss_var: Tworzy wykres przedstawiający liczbę braków danych w poszczególnych kolumnach.
+gg_miss_case: Wizualizuje liczbę braków danych w poszczególnych wierszach (rekordach).
+```{r echo=FALSE}
+#wzorce braków danych
+md.pattern(data, plot = TRUE, rotate.names = TRUE)
+gg_miss_upset(data)
+```
+md.pattern analizuje wzorce brakujących danych i prezentuje je graficznie.
+gg_miss_upset tworzy wykres upset, który pokazuje, które kombinacje braków danych są najczęstsze.
+
+```{r echo=FALSE}
+a1 <- gg_miss_fct(data, fct = Gender)
+a2 <- gg_miss_fct(data, fct = Education)
+a3 <- gg_miss_fct(data, fct = Self_Employed)
+a4 <- gg_miss_fct(data, fct = Property_Area)
+grid.arrange(a1, a2, a3, a4, nrow=2)
+```
+Podsumowując, kod identyfikuje i liczy brakujące wartości, uwzględniając puste ciągi.
+Przygotowuje dane, zastępując puste wartości NA.
+Wizualizuje rozkład braków danych w zbiorze (kolumny, wiersze, wzorce braków).
+Analizuje wpływ zmiennych kategorycznych na występowanie braków danych.
+
+1.2 Identyfikacja unikatowych wartości
+```{r echo=FALSE}
+#unikatowe wartości
+unique_counts <- data.frame(
+  unikalne_wartosci = vapply(data, function(kolumna) {
+    length(setdiff(unique(kolumna), NA)) 
+  }, numeric(1))
+)
+unique_counts
+```
+Powyższy kod oblicza liczbę unikalnych wartości w każdej kolumnie.
+Tworzona jest ramka unique_counts, w której dla każdej kolumny zliczana jest liczba unikalnych wartości.
+1.3 Propocje odpowiedzi dla wybranych kategorii
+```{r echo=FALSE}
+#proporcje odpowiedzi dla wybranych kategorii
+columns_to_analyze <- list(
+  Gender = data$Gender,
+  Married = data$Married,
+  Dependents = data$Dependents,
+  Education = data$Education,
+  Self_Employed = data$Self_Employed,
+  Credit_History = data$Credit_History,
+  Property_Area = data$Property_Area,
+  Loan_Status = data$Loan_Status,
+  Loan_Amount_Term = data$Loan_Amount_Term
+)
+
+
+proportions <- do.call(rbind, lapply(names(columns_to_analyze), function(col_name) {
+  kolumna <- columns_to_analyze[col_name]
+  dane <- as.data.frame(table(kolumna))
+  colnames(dane) <- c("odpowiedzi", "liczba_obserwacji") 
+  dane$kategorie <- col_name 
+  return(dane)
+}))
+
+proportions
+
+#typy danych
+data_class <- data.frame(class = sapply(data, class))
+data_class
+
+#wizualizacja typow danych
+vis_dat(data)
+```
+
+Dla określonych kolumn kategorycznych (np. Gender, Married, Education, Loan_Status) tworzona jest tabela częstości wartości.
+Tworzony jest zbiorczy data.frame, który zawiera liczbę wystąpień każdej wartości w każdej analizowanej kolumnie.
+
+2. Data Cleasing
+```{r echo=FALSE}
+#instalacja i wczytanie bibliotek
+if (!require("gridExtra")) install.packages("gridExtra")
+
+library(gridExtra)
+
+#wczytanie danych
+data <- read.csv("dataset/raw_data.csv")
+
+#zapisanie wizualizacji typow danych przed standaryzacja
+data_pre_stand <- vis_dat(data)
+
+#zmiana pustych ciagow na NA
+data[data == ""] <- NA
+data[data == " "] <- NA
+
+#usuniecie kolumny Loan_ID
+if ("Loan_ID" %in% colnames(data)) {
+  data <- subset(data, select = -Loan_ID)
+}
+
+#funkcja zmiany typu
+map_to_numeric <- function(column, mapping) {
+  factor_column <- factor(column, levels = names(mapping), labels = mapping)
+  as.numeric(as.character(factor_column))
+}
+
+#standaryzacja danych (zmiana na numeryczne)
+data$Gender <- map_to_numeric(data$Gender, c("Female" = 0, "Male" = 1))
+data$Married <- map_to_numeric(data$Married, c("No" = 0, "Yes" = 1))
+data$Dependents <- gsub("\\+", "", data$Dependents) # Usunięcie "+"
+data$Dependents <- map_to_numeric(data$Dependents, c("0" = 0, "1" = 1, "2" = 2, "3" = 3))
+data$Education <- map_to_numeric(data$Education, c("Not Graduate" = 0, "Graduate" = 1))
+data$Self_Employed <- map_to_numeric(data$Self_Employed, c("No" = 0, "Yes" = 1))
+data$CoapplicantIncome <- as.numeric(data$CoapplicantIncome)
+data$Property_Area <- map_to_numeric(data$Property_Area, c("Rural" = 1, "Semiurban" = 2, "Urban" = 3))
+data$Loan_Status <- map_to_numeric(data$Loan_Status, c("N" = 0, "Y" = 1))
+
+
+#wizualizacja typow danych przed i po czyszczeniu
+grid.arrange(data_pre_stand, vis_dat(data))
+
+#zapisanie wyczyszczonych danych
+write.csv(data, "dataset/clean_data.csv")
+```
+
+Tworzona jest funkcja map_to_numeric, która konwertuje zmienne kategoryczne na wartości numeryczne na podstawie zdefiniowanego mapowania.
+Zmienne takie jak Gender, Married, Education, Self_Employed, Property_Area, Loan_Status są zamieniane na wartości liczbowe (np. Male = 1, Female = 0).
+Kod ten przekształca surowe dane w ustrukturyzowaną formę, gotową do analizy i modelowania. Usuwa zbędne wartości, standardyzuje formaty.
+
+## 6. Wnioskowanie (testy statystyczne)
+
+Wnioskowanie statystyczne to proces podejmowania decyzji lub formułowania wniosków na podstawie danych. W ramach projektu podjęto próbę zdefinowania wzajemnych zależności pomiędzy zmiennymi opisującymi osoby wnioskujące o kredyt, w kontekście finalnej decyzji banku o udzieleniu pożyczki, lub też decyzji odmownej.
+
+```{r echo=FALSE, message = FALSE, warning = FALSE}
+data <- read.csv("dataset/types_of_clients_data.csv")
+
+if (!require(ggstatsplot)) install.packages("ggstatsplot")
+
+library(ggstatsplot)
+```
+
+### 6.1. Model regresji logistycznej
+
+W celu przeprowadzenia wnioskowania wykorzystano model regresji logistycznej (logit) - tóry jest używany do analizy zmiennych zależnych o charakterze binarnym, takich jaką jest zmienna opisująca decyzję o przyznaniu pożyczki.
+
+```{r}
+logit1 <- glm(Loan_Status ~ Married + ApplicantIncome + CoapplicantIncome +Dependents + Education + LoanAmount + Credit_History, 
+              data = data, family = binomial)
+summary(logit1)
+
+```
+
+Dla utworzonego modelu zmienną objaśniającą jest Loan_Status informujący o decyzji przyznanie pożyczki, natomiast zmienne objaśniające to pozostałe dostępne informacje o potencjalnych kredytobiorcach.
+
+Jak widać dla utworzonego modelu jedynie zmienne informujące o stanie cywilnym, poziomie oraz hisotrii kredytowej są istotne statystycznie.
+
+```{r}
+logit2 <- glm(Loan_Status ~ Married + Credit_History, 
+              data = data, family = binomial)
+summary(logit2)
+
+OR <- exp(logit2$coefficients)
+print(OR)
+```
+
+W ramach drugie modelu przyjęto jako zmienne objaśniające dwie zmienne o największej istotności statystycznej w stosunku do wszystkich danych. Można stąd wysunąć wniosek, że zmiennymi o największym wpływie na decyzję o przyzaniu kredytu są zmienne mówiące o stanie cywilnym oraz hisotrii kredytowej.
+
+*Zakładając, że tylko te dwie wartości determinowałyby decyzję:*
+
+-   bycie w zwiazku malzenskim zwieksza szanse na otrzymanie kredytu o 73%.
+-   natomiast pozytywna historia kredytowa zwieksza szanse na otrzymanie kredytu az o 3248%
+
+### 6.2. Wizualizacja testów statystycznych
+
+Wszystkie analizowane zmienne są istotne statystycznie przy poziomie istotności 0.05.
+
+*Historia kredytowa:*
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Credit_History,
+  y = Loan_Status,
+  data = data
+)
+```
+
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Credit_History,
+  x = Loan_Status,
+  data = data
+)
+```
+
+*Stan cywilny:*
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Married,
+  y = Loan_Status,
+  data = data
+)
+
+```
+
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Married,
+  x = Loan_Status,
+  data = data
+)
+```
+
+*Poziom edukacji:*
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Education,
+  y = Loan_Status,
+  data = data
+)
+```
+
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Education,
+  x = Loan_Status,
+  data = data
+)
+```
+
+## 7. Podsumowanie i wnioski końcowe
+
+W ramach przeprowadzonej analizy danych zastosowano szereg technik przetwarzania, wizualizacji, analizy opisowej oraz wnioskowania statystycznego, które pozwoliły na dogłębne zrozumienie zależności między zmiennymi a decyzją o przyznaniu pożyczki.
+
+-   Pierwszym etapem pracy był data wrangling, który obejmował wstępną analizę danych, oczyszczanie zbioru danych, radzenie sobie z wartościami odstającymi oraz przygotowanie danych do dalszej wizualizacji.
+-   Następnie podjęto próbę rozwiązania głównego problemu postawionego przed danymi - wyodrębnieniu osób kwalifikujących się do kredytu. Przyjęto że wyznacznikiem będzie tu kwota dochodów gospodarstwa domowego w zależności od liczby osób zależnych. Podjęto również próbę klasteryzacji klientów na dwie grupy.
+-   Kolejnym krokiem było rozwiązanie kwestii wartości odstających. Problem ten rozwiązał się samoczynnie poprzez podział klientów ze względu na zarobki w punkcie 2.
+-   Wizualizacja danych została przeprowadzona przy użyciu wykresów pudełkowychi słupkowych.
+-   Wreszcie, na etapie wnioskowania statystycznego przeprowadzono odpowiednie testy (w tym budowę modelu), które miały na celu identyfikację zmiennych istotnych statystycznie w kontekście przyznania pożyczki.
+
+Podczas realizacji projektu udało się rozwiązać zadanie stojące przed bazą danych poprzez zaproponowanie dwóch podziałów klientów do których bank mógłby skierować swoją ofertę - na podstawie dochodu gospodarstwa w zależności od liczby osób zależnych, oraz na podstawie algorytmu klastrowania. Wykazano również, że stan cywilny oraz historia kredytowa mają największy wpływ na decyzję o przyznaniu pożyczki.
