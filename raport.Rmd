@@ -39,6 +39,65 @@ options(repos = c(CRAN = "https://cloud.r-project.org/"))
 data <- read.csv("dataset/raw_data.csv")
 ```
 
+# 4. Wizualizacja danych
+
+4.1. Każdy **wykres pudełkowy** przedstawia rozkład dochodu w gospodarstwie domowym (**HouseholdIncome**) w zależności od miejsca zamieszkania klientów. Pierwszy wykres pokazuje, jak dochody kształtują się w różnych lokalizacjach dla wszystkich klientów, natomiast drugi dodatkowo rozróżnia klientów **Basic**, a trzeci **Premium**. Taka wizualizacja pozwala lepiej zrozumieć, jak dochody różnią się w różnych obszarach oraz jak przedstawiają się w poszczególnych grupach klientów.
+
+```{r import danych dla wykresow, echo=FALSE}
+types_of_clients_data<-read.csv("dataset/types_of_clients_data.csv")
+```
+
+```{r Wykresy pudelkowe, echo=TRUE}
+types_of_clients_data$Property_Area <- factor(types_of_clients_data$Property_Area, 
+                                              levels = c(1, 2, 3), 
+                                              labels = c("Urban", "Semiurban", "Rural"))
+types_of_clients_data$type_of_client <- factor(types_of_clients_data$type_of_client, 
+                                               levels = c(0, 1), 
+                                               labels = c("Basic", "Premium"))
+library(ggplot2)
+ggplot(types_of_clients_data, aes(x = Property_Area, y = HouseholdIncome, fill = Property_Area)) +
+  geom_boxplot() +
+  labs(
+    title = "Analiza dochodów według Property_Area",
+    x = "Property Area",
+    y = "Household Income"
+  ) +
+  theme_minimal()
+
+```
+
+```{r Wykres pudelkowy 2, echo=TRUE}
+library(ggplot2)
+library(gridExtra)
+# Wykres 2: Rozkład dochodów klientów Basic według Property_Area
+ggplot(subset(types_of_clients_data, type_of_client == "Basic"), 
+       aes(x = Property_Area, y = HouseholdIncome, fill = Property_Area)) +
+  geom_boxplot() +
+  labs(
+    title = "Analiza dochodów klientów Basic według Property_Area",
+    x = "Property Area",
+    y = "Household Income"
+  ) +
+  theme_minimal()
+```
+
+```{r Wykresy pudelkowe 3, echo=TRUE}
+library(ggplot2)
+# Wykres 3: Rozkład dochodów klientów Premium według Property_Area
+ggplot(subset(types_of_clients_data, type_of_client == "Premium"), 
+       aes(x = Property_Area, y = HouseholdIncome, fill = Property_Area)) +
+  geom_boxplot() +
+  labs(
+    title = "Analiza dochodów klientów Premium według Property_Area",
+    x = "Property Area",
+    y = "Household Income"
+  ) +
+  theme_minimal()
+
+```
+
+Klienci **Premium** mają **wyższe i bardziej zróżnicowane dochody** niż klienci Basic, szczególnie w obszarach **wiejskich**. Największa **zmienność dochodów** w obu grupach występuje w rejonach **wiejskich**.
+
 # 5. Analiza opisowa
 
 Pierwszym etapem analiz wszelkiego typu danych jest ich **analiza opisowa**. Pozwala ona lepiej zrozumieć dane oraz wyciągnąć odpowienie wnioski.
