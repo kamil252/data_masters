@@ -1,17 +1,15 @@
 ---
-title: "Analiza danych"
-subtitle: "Raport końcowy"
+title: "Analiza danych - raport końcowy"
+subtitle: "K. Ciosek, O. Kanigowski, N. Górczyńska"
 author: "K. Ciosek, O. Kanigowski, N. Górczyńska"
 date: "02.02.2025"
 output: rmdformats::readthedown
 css: "style.css"
 ---
 
-### Analityka Gospodarcza II 2024/2025
-
 ![](images/wzie.png){width="352"}
 
-### Kamil Ciosek, Nina Górczyńska, Oskar Kanigowski
+### Analityka Gospodarcza II 2024/2025
 
 $\\ \\ \\ \\ \\$
 
@@ -594,7 +592,7 @@ ggbetweenstats(
 )
 ```
 
-*Stan cywilny:*
+**Stan cywilny:**
 
 ```{r echo=FALSE}
 ggbarstats(
@@ -613,7 +611,7 @@ ggbetweenstats(
 )
 ```
 
-*Poziom edukacji:*
+**Poziom edukacji:**
 
 ```{r echo=FALSE}
 ggbarstats(
