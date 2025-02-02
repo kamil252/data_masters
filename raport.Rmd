@@ -1,10 +1,11 @@
 ---
-title: "Analiza danych - raport końcowy"
-author: "Kamil Ciosek; Oskar Kanigowski; Nina Górczyńska"
+title: "Analiza danych"
+author: "K. Ciosek, O. Kanigowski, N. Górczyńska"
 date: "2025-01-19"
-output: html_document
+output: rmdformats::readthedown
+css: "style.css"
 ---
-
+![](images/wzie.png){width="438"}
 # Wprowadzenie
 
 ### Pożyczki
@@ -282,3 +283,117 @@ corrplot(macierz_korelacji, method = "color", type = "upper", order = "hclust",
 ```
 
 Stąd od razu widzimy, które zmienne są ze sobą silnie skorelowane, a które słabiej.
+
+## 6. Wnioskowanie (testy statystyczne)
+
+Wnioskowanie statystyczne to proces podejmowania decyzji lub formułowania wniosków na podstawie danych. W ramach projektu podjęto próbę zdefinowania wzajemnych zależności pomiędzy zmiennymi opisującymi osoby wnioskujące o kredyt, w kontekście finalnej decyzji banku o udzieleniu pożyczki, lub też decyzji odmownej.
+
+```{r echo=FALSE, message = FALSE, warning = FALSE}
+data <- read.csv("dataset/types_of_clients_data.csv")
+
+if (!require(ggstatsplot)) install.packages("ggstatsplot")
+
+library(ggstatsplot)
+```
+
+### 6.1. Model regresji logistycznej
+
+W celu przeprowadzenia wnioskowania wykorzystano model regresji logistycznej (logit) - tóry jest używany do analizy zmiennych zależnych o charakterze binarnym, takich jaką jest zmienna opisująca decyzję o przyznaniu pożyczki.
+
+```{r}
+logit1 <- glm(Loan_Status ~ Married + ApplicantIncome + CoapplicantIncome +Dependents + Education + LoanAmount + Credit_History, 
+              data = data, family = binomial)
+summary(logit1)
+
+```
+
+Dla utworzonego modelu zmienną objaśniającą jest Loan_Status informujący o decyzji przyznanie pożyczki, natomiast zmienne objaśniające to pozostałe dostępne informacje o potencjalnych kredytobiorcach.
+
+Jak widać dla utworzonego modelu jedynie zmienne informujące o stanie cywilnym, poziomie oraz hisotrii kredytowej są istotne statystycznie.
+
+```{r}
+logit2 <- glm(Loan_Status ~ Married + Credit_History, 
+              data = data, family = binomial)
+summary(logit2)
+
+OR <- exp(logit2$coefficients)
+print(OR)
+```
+
+W ramach drugie modelu przyjęto jako zmienne objaśniające dwie zmienne o największej istotności statystycznej w stosunku do wszystkich danych. Można stąd wysunąć wniosek, że zmiennymi o największym wpływie na decyzję o przyzaniu kredytu są zmienne mówiące o stanie cywilnym oraz hisotrii kredytowej.
+
+*Zakładając, że tylko te dwie wartości determinowałyby decyzję:*
+
+-   bycie w zwiazku malzenskim zwieksza szanse na otrzymanie kredytu o 73%.
+-   natomiast pozytywna historia kredytowa zwieksza szanse na otrzymanie kredytu az o 3248%
+
+### 6.2. Wizualizacja testów statystycznych
+
+Wszystkie analizowane zmienne są istotne statystycznie przy poziomie istotności 0.05.
+
+**Historia kredytowa:**
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Credit_History,
+  y = Loan_Status,
+  data = data
+)
+```
+
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Credit_History,
+  x = Loan_Status,
+  data = data
+)
+```
+
+*Stan cywilny:*
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Married,
+  y = Loan_Status,
+  data = data
+)
+
+```
+
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Married,
+  x = Loan_Status,
+  data = data
+)
+```
+
+*Poziom edukacji:*
+
+```{r echo=FALSE}
+ggbarstats(
+  x = Education,
+  y = Loan_Status,
+  data = data
+)
+```
+
+```{r echo=FALSE}
+ggbetweenstats(
+  y = Education,
+  x = Loan_Status,
+  data = data
+)
+```
+
+## 7. Podsumowanie i wnioski końcowe
+
+W ramach przeprowadzonej analizy danych zastosowano szereg technik przetwarzania, wizualizacji, analizy opisowej oraz wnioskowania statystycznego, które pozwoliły na dogłębne zrozumienie zależności między zmiennymi a decyzją o przyznaniu pożyczki.
+
+-   Pierwszym etapem pracy był data wrangling, który obejmował wstępną analizę danych, oczyszczanie zbioru danych, radzenie sobie z wartościami odstającymi oraz przygotowanie danych do dalszej wizualizacji.
+-   Następnie podjęto próbę rozwiązania głównego problemu postawionego przed danymi - wyodrębnieniu osób kwalifikujących się do kredytu. Przyjęto że wyznacznikiem będzie tu kwota dochodów gospodarstwa domowego w zależności od liczby osób zależnych. Podjęto również próbę klasteryzacji klientów na dwie grupy.
+-   Kolejnym krokiem było rozwiązanie kwestii wartości odstających. Problem ten rozwiązał się samoczynnie poprzez podział klientów ze względu na zarobki w punkcie 2.
+-   Wizualizacja danych została przeprowadzona przy użyciu wykresów pudełkowychi słupkowych.
+-   Wreszcie, na etapie wnioskowania statystycznego przeprowadzono odpowiednie testy (w tym budowę modelu), które miały na celu identyfikację zmiennych istotnych statystycznie w kontekście przyznania pożyczki.
+
+Podczas realizacji projektu udało się rozwiązać zadanie stojące przed bazą danych poprzez zaproponowanie dwóch podziałów klientów do których bank mógłby skierować swoją ofertę - na podstawie dochodu gospodarstwa w zależności od liczby osób zależnych, oraz na podstawie algorytmu klastrowania. Wykazano również, że stan cywilny oraz historia kredytowa mają największy wpływ na decyzję o przyznaniu pożyczki.
