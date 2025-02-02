@@ -5,8 +5,284 @@ date: "2025-01-19"
 output: rmdformats::readthedown
 css: "style.css"
 ---
-
 ![](images/wzie.png){width="438"}
+# Wprowadzenie
+
+### Pożyczki
+
+Spośród wszystkich branż, domena ubezpieczeniowa ma największe zastosowanie analityki i metod nauki o danych. Ten zestaw danych zapewni ci wystarczający przedsmak pracy nad zestawami danych z firm ubezpieczeniowych, z jakimi wyzwaniami się mierzą, jakie strategie są stosowane, jakie zmienne wpływają na wynik itp. Jest to problem klasyfikacji. Dane mają 615 wierszy i 13 kolumn.
+
+### Problem
+
+Firma chce zautomatyzować proces kwalifikowania się do pożyczki (w czasie rzeczywistym) w oparciu o dane klienta podane podczas wypełniania wniosku online. Dane te obejmują płeć, stan cywilny, wykształcenie, liczbę osób na utrzymaniu, dochód, kwotę pożyczki, historię kredytową i inne. Aby zautomatyzować ten proces, firma postawiła sobie za cel zidentyfikowanie segmentów klientów, którzy kwalifikują się do otrzymania kwoty pożyczki, aby móc skierować do nich konkretną ofertę. W tym przypadku dostarczono częściowy zestaw danych.
+
+### Opis bazy danych
+
+Baza składa się z 13 kolumn, a te z kolei zawierają następujące wartości:
+
+1.  **Loan_ID** - indywidualny numer ID każdej obserwacji,
+2.  **Gender** - informacja, jaka płeć jest przyjęta w danej obserwacji,
+3.  **Married** - informacja, czy osoba jest w związku małżeńskim,
+4.  **Dependents** - ilość osób zależnych (finansowo),
+5.  **Education** - informacja, czy dana osoba ukończyła studia,
+6.  **Self_Employed** - informacja, czy osoba jest samozatrudniona,
+7.  **ApplicantIncome** - dochód wnioskodawcy o pożyczkę,
+8.  **CoapplicantIncome** - dochód współwnioskodawcy o pożyczkę,
+9.  **LoanAmount** - kwota pożyczki,
+10. **Loan_Amount_Term** - okres kredytowania,
+11. **Credit_History** - historia kredytowa,
+12. **Property_Area** - obszar zamieszkania,
+13. **Loan_Status** - informacja, czy udzielono kredytu 
+
+```{r Wczytanie danych, echo=FALSE}
+options(repos = c(CRAN = "https://cloud.r-project.org/"))
+#wczytanie danych
+data <- read.csv("dataset/raw_data.csv")
+```
+
+# 4. Wizualizacja danych
+
+4.1. Każdy **wykres pudełkowy** przedstawia rozkład dochodu w gospodarstwie domowym (**HouseholdIncome**) w zależności od miejsca zamieszkania klientów. Pierwszy wykres pokazuje, jak dochody kształtują się w różnych lokalizacjach dla wszystkich klientów, natomiast drugi dodatkowo rozróżnia klientów **Basic**, a trzeci **Premium**. Taka wizualizacja pozwala lepiej zrozumieć, jak dochody różnią się w różnych obszarach oraz jak przedstawiają się w poszczególnych grupach klientów.
+
+```{r import danych dla wykresow, echo=FALSE}
+types_of_clients_data<-read.csv("dataset/types_of_clients_data.csv")
+```
+
+```{r Wykresy pudelkowe, echo=TRUE}
+types_of_clients_data$Property_Area <- factor(types_of_clients_data$Property_Area, 
+                                              levels = c(1, 2, 3), 
+                                              labels = c("Urban", "Semiurban", "Rural"))
+types_of_clients_data$type_of_client <- factor(types_of_clients_data$type_of_client, 
+                                               levels = c(0, 1), 
+                                               labels = c("Basic", "Premium"))
+library(ggplot2)
+ggplot(types_of_clients_data, aes(x = Property_Area, y = HouseholdIncome, fill = Property_Area)) +
+  geom_boxplot() +
+  labs(
+    title = "Analiza dochodów według Property_Area",
+    x = "Property Area",
+    y = "Household Income"
+  ) +
+  theme_minimal()
+
+```
+
+```{r Wykres pudelkowy 2, echo=TRUE}
+library(ggplot2)
+library(gridExtra)
+# Wykres 2: Rozkład dochodów klientów Basic według Property_Area
+ggplot(subset(types_of_clients_data, type_of_client == "Basic"), 
+       aes(x = Property_Area, y = HouseholdIncome, fill = Property_Area)) +
+  geom_boxplot() +
+  labs(
+    title = "Analiza dochodów klientów Basic według Property_Area",
+    x = "Property Area",
+    y = "Household Income"
+  ) +
+  theme_minimal()
+```
+
+```{r Wykresy pudelkowe 3, echo=TRUE}
+library(ggplot2)
+# Wykres 3: Rozkład dochodów klientów Premium według Property_Area
+ggplot(subset(types_of_clients_data, type_of_client == "Premium"), 
+       aes(x = Property_Area, y = HouseholdIncome, fill = Property_Area)) +
+  geom_boxplot() +
+  labs(
+    title = "Analiza dochodów klientów Premium według Property_Area",
+    x = "Property Area",
+    y = "Household Income"
+  ) +
+  theme_minimal()
+
+```
+
+Klienci **Premium** mają **wyższe i bardziej zróżnicowane dochody** niż klienci Basic, szczególnie w obszarach **wiejskich**. Największa **zmienność dochodów** w obu grupach występuje w rejonach **wiejskich**.
+
+4.2. Na **wykresach słupkowych** zaprezentujemy zmienne: Gender, Married, Dependents oraz Education.
+
+```{r, wykresy slupkowe, echo=FALSE}
+library(ggplot2)
+library(gridExtra)
+full_data <- read.csv("dataset/types_of_clients_data.csv")
+
+
+
+full_data$Gender <- factor(full_data$Gender, levels = c(0, 1), labels = c("Female", "Male"))
+full_data$Married <- factor(full_data$Married, levels = c(0, 1), labels = c("No", "Yes"))
+full_data$Dependents <- factor(full_data$Dependents, levels = c(0, 1, 2, 3), labels = c("0", "1", "2", "3+"))
+full_data$Education <- factor(full_data$Education, levels = c(0, 1), labels = c("Not Graduate", "Graduate"))
+full_data$Self_Employed <- factor(full_data$Self_Employed, levels = c(0, 1), labels = c("No", "Yes"))
+full_data$Credit_History <- factor(full_data$Credit_History, levels = c(0, 1), labels = c("No", "Yes"))
+full_data$Property_Area <- factor(full_data$Property_Area, levels = c(1, 2, 3), labels = c("Urban", "Semiurban", "Rural"))
+full_data$Loan_Status <- factor(full_data$Loan_Status, levels = c(0, 1), labels = c("Rejected", "Approved"))
+
+```
+
+```{r slupkowe, echo=TRUE}
+plot1 <- ggplot(full_data, aes(x = Gender, fill = Gender)) +
+  geom_bar() +
+  labs(x = "Gender", y = "Liczba obserwacji", fill = "Gender") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1")
+
+plot2 <- ggplot(full_data, aes(x = Married, fill = Married)) +
+  geom_bar() +
+  labs(x = "Married", y = "Liczba obserwacji", fill = "Married") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+plot3 <- ggplot(full_data, aes(x = Dependents, fill = Dependents)) +
+  geom_bar() +
+  labs(x = "Dependents", y = "Liczba obserwacji", fill = "Dependents") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+plot4 <- ggplot(full_data, aes(x = Education, fill = Education)) +
+  geom_bar() +
+  labs(x = "Education", y = "Liczba obserwacji", fill = "Education") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Pastel1")
+
+plot5 <- ggplot(full_data, aes(x = Self_Employed, fill = Self_Employed)) +
+  geom_bar() +
+  labs(x = "Self Employed", y = "Liczba obserwacji", fill = "Self Employed") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Pastel2")
+
+plot6 <- ggplot(full_data, aes(x = Credit_History, fill = Credit_History)) +
+  geom_bar() +
+  labs(x = "Credit History", y = "Liczba obserwacji", fill = "Credit History") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Dark2")
+
+plot7 <- ggplot(full_data, aes(x = Property_Area, fill = Property_Area)) +
+  geom_bar() +
+  labs(x = "Property Area", y = "Liczba obserwacji", fill = "Property Area") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Accent")
+
+plot8 <- ggplot(full_data, aes(x = Loan_Status, fill = Loan_Status)) +
+  geom_bar() +
+  labs(x = "Loan Status", y = "Liczba obserwacji", fill = "Loan Status") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set2")
+
+```
+
+```{r zestawienie 1-4, echo=TRUE}
+grid.arrange(plot1, plot2, plot3, plot4, nrow = 2)
+```
+
+Z powyższych wykresów możemy wywnioskować, że w danych dużo większy udział mają **mężczyźni** niż kobiety. Więcej jest także osób **w związku małżeńskim** niż singli, zdecydowaną większością są osoby, które **nie mają pod sobą osób zależnych** oraz o kredyt aplikuje więcej osób ze **skończonymi studiami**.
+
+```{r zestawienie 5-8, echo=TRUE}
+grid.arrange(plot5, plot6, plot7, plot8, nrow = 2)
+```
+
+Dalsze wykresy pokazują, że o kredyt aplikuje zdecydowanie **mniej** osób na **samozatrudnieniu** oraz **bez historii kredytowej**. Biorąc pod uwagę obszar zamieszkania, najwięcej jest osób z obszarów półmiejskich, następnie z obszarów wiejskich, a najmniej osób z miast. Zdecydowanie **więcej** jest **udzielonych kredytów** niż tych odrzuconych.
+
+# 5. Analiza opisowa
+
+Pierwszym etapem analiz wszelkiego typu danych jest ich **analiza opisowa**. Pozwala ona lepiej zrozumieć dane oraz wyciągnąć odpowienie wnioski.
+
+**5.1. Statystyki opisowe** pomagają szybko zrozumieć, jakie wartości dominują, jak bardzo dane są zróżnicowane i czy występują jakieś nietypowe przypadki. Dzięki nim mogliśmy np. sprawdzić, jaki jest przeciętny dochód wnioskodawcy, jak bardzo dochody różnią się między aplikantami, albo czy w danych są osoby, które odstają od reszty.
+
+```{r wczytanie nowej bazy, echo =FALSE}
+
+data1 <- read.csv("dataset/types_of_clients_data.csv")
+```
+
+```{r Statystyki opisowe, echo=TRUE}
+#Statystyki opisowe
+statystyki <-
+  list("IncomePerDependent" =
+         list("Średnia"= ~(mean(IncomePerDependent)),
+              "Mediana"= ~(median(IncomePerDependent)),
+              "Odchylenie standardowe"= ~(sd(IncomePerDependent)),
+              "Pierwszy kwartyl"= ~quantile(IncomePerDependent,0.25),
+              "Trzeci kwartyl"= ~quantile(IncomePerDependent,0.75),
+              "IQR"= ~(IQR(IncomePerDependent)),
+              "Odchylenie ćwiartkowe"= ~(IQR(IncomePerDependent)/2),
+              "Skośność"= ~(skew(IncomePerDependent)),
+              "Kurtoza"= ~(kurtosi(IncomePerDependent)),
+              "Min"= ~min(IncomePerDependent),
+              "Max"= ~max(IncomePerDependent)
+         ))
+```
+
+```{r biblioteki, echo=FALSE}
+install.packages("ggstatsplot")
+install.packages("corrplot")
+install.packages("gtsummary")
+library(gtsummary)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(ggstatsplot)
+library(corrplot)
+library(dplyr)
+```
+
+```{r Rozklad w tabeli, echo=TRUE}
+#Rozkład w tabeli
+data1 %>%
+  select(IncomePerDependent, Loan_Status) %>%
+  tbl_summary(
+    by=Loan_Status,
+    type = all_continuous() ~ "continuous2",
+    statistic = all_continuous() ~ c(
+      "{N_nonmiss}","{mean}","{sd}",
+      "{median} ({p25}, {p75})",
+      "{min}, {max}"),
+    missing = "no",
+    label = IncomePerDependent ~ "Przychód na jedną osobę w gospodarstwie domowym") %>%
+  modify_header(label ~ "**Zmienna**") %>%
+  modify_caption("**Rozkład IncomePerDependent wg Loan_Status**") %>%
+  bold_labels() %>% 
+  add_p(pvalue_fun = ~ style_pvalue(.x, digits = 2))
+```
+
+Tabela przedstawia **rozkład przychodu na jedną osobę w gospodarstwie domowym** w podziale na **status kredytowy**, gdzie **0** oznacza osoby, którym kredytu nie przyznano (*N = 192*), a **1** oznacza osoby, które otrzymały kredyt (*N = 422*).
+
+**5.2.** **Korelacja** pokazuje, czy i jak mocno dwie zmienne są ze sobą powiązane.
+
+U nas wygląda to następująco:
+
+```{r Korelacja, echo=TRUE}
+#Badamy korelacje miedzy zmiennymi
+korelacja <- data.frame(cor(data1))
+korelacja
+```
+
+Zdecydowaliśmy się ograniczyć korelacje, aby ukazywały się tylko te **od 0,5 do 1** (korelacja silna).
+
+```{r Wizualizacja korelacji, echo=TRUE}
+wizualizacja_kor <- as.data.frame(as.table(cor(korelacja)))
+
+bez_duplikatow <- wizualizacja_kor[order(wizualizacja_kor$Freq, decreasing = TRUE),]
+bez_duplikatow <- distinct(bez_duplikatow, Freq, .keep_all = TRUE)
+
+if (bez_duplikatow[1,1] == bez_duplikatow[1,2]) {
+  bez_duplikatow <- bez_duplikatow[-1,]
+  row.names(bez_duplikatow) <- NULL
+}
+
+silna_korelacja <- subset(bez_duplikatow, bez_duplikatow$Freq >= abs(0.5))
+silna_korelacja
+```
+
+W celu bardziej przejrzystego przedstawienia danych, prezentujemy naszą **macierz korelacji**:
+
+```{r Macierz korelac, echo=TRUE}
+#Macierz korelacji
+macierz_korelacji <- cor(korelacja, use="complete.obs")
+corrplot(macierz_korelacji, method = "color", type = "upper", order = "hclust",
+         tl.col = "black", tl.srt = 60)
+
+```
+
+Stąd od razu widzimy, które zmienne są ze sobą silnie skorelowane, a które słabiej.
 
 ## 6. Wnioskowanie (testy statystyczne)
 
