@@ -1,22 +1,31 @@
 ---
 title: "Analiza danych"
+subtitle: "Raport końcowy"
 author: "K. Ciosek, O. Kanigowski, N. Górczyńska"
 date: "2025-01-19"
 output: rmdformats::readthedown
 css: "style.css"
 ---
-![](images/wzie.png){width="438"}
-# Wprowadzenie
 
-### Pożyczki
+### Analityka Gospodarcza II 2024/2025
+
+![](images/wzie.png){width="352"}
+
+### Kamil Ciosek, Nina Górczyńska, Oskar Kanigowski
+
+$\\ \\ \\ \\ \\$
+
+## 1.Wprowadzenie
+
+### 1.1. Pożyczki
 
 Spośród wszystkich branż, domena ubezpieczeniowa ma największe zastosowanie analityki i metod nauki o danych. Ten zestaw danych zapewni ci wystarczający przedsmak pracy nad zestawami danych z firm ubezpieczeniowych, z jakimi wyzwaniami się mierzą, jakie strategie są stosowane, jakie zmienne wpływają na wynik itp. Jest to problem klasyfikacji. Dane mają 615 wierszy i 13 kolumn.
 
-### Problem
+### 1.2. Problem
 
 Firma chce zautomatyzować proces kwalifikowania się do pożyczki (w czasie rzeczywistym) w oparciu o dane klienta podane podczas wypełniania wniosku online. Dane te obejmują płeć, stan cywilny, wykształcenie, liczbę osób na utrzymaniu, dochód, kwotę pożyczki, historię kredytową i inne. Aby zautomatyzować ten proces, firma postawiła sobie za cel zidentyfikowanie segmentów klientów, którzy kwalifikują się do otrzymania kwoty pożyczki, aby móc skierować do nich konkretną ofertę. W tym przypadku dostarczono częściowy zestaw danych.
 
-### Opis bazy danych
+### 1.3. Opis bazy danych
 
 Baza składa się z 13 kolumn, a te z kolei zawierają następujące wartości:
 
@@ -40,9 +49,11 @@ options(repos = c(CRAN = "https://cloud.r-project.org/"))
 data <- read.csv("dataset/raw_data.csv")
 ```
 
-# 4. Wizualizacja danych
+## 4. Wizualizacja danych
 
-4.1. Każdy **wykres pudełkowy** przedstawia rozkład dochodu w gospodarstwie domowym (**HouseholdIncome**) w zależności od miejsca zamieszkania klientów. Pierwszy wykres pokazuje, jak dochody kształtują się w różnych lokalizacjach dla wszystkich klientów, natomiast drugi dodatkowo rozróżnia klientów **Basic**, a trzeci **Premium**. Taka wizualizacja pozwala lepiej zrozumieć, jak dochody różnią się w różnych obszarach oraz jak przedstawiają się w poszczególnych grupach klientów.
+### 4.1. Wykesy puedłkowe
+
+Każdy **wykres pudełkowy** przedstawia rozkład dochodu w gospodarstwie domowym (**HouseholdIncome**) w zależności od miejsca zamieszkania klientów. Pierwszy wykres pokazuje, jak dochody kształtują się w różnych lokalizacjach dla wszystkich klientów, natomiast drugi dodatkowo rozróżnia klientów **Basic**, a trzeci **Premium**. Taka wizualizacja pozwala lepiej zrozumieć, jak dochody różnią się w różnych obszarach oraz jak przedstawiają się w poszczególnych grupach klientów.
 
 ```{r import danych dla wykresow, echo=FALSE}
 types_of_clients_data<-read.csv("dataset/types_of_clients_data.csv")
@@ -99,7 +110,9 @@ ggplot(subset(types_of_clients_data, type_of_client == "Premium"),
 
 Klienci **Premium** mają **wyższe i bardziej zróżnicowane dochody** niż klienci Basic, szczególnie w obszarach **wiejskich**. Największa **zmienność dochodów** w obu grupach występuje w rejonach **wiejskich**.
 
-4.2. Na **wykresach słupkowych** zaprezentujemy zmienne: Gender, Married, Dependents oraz Education.
+### 4.2. Wykresy słupkowe
+
+Na **wykresach słupkowych** zaprezentujemy zmienne: Gender, Married, Dependents oraz Education.
 
 ```{r, wykresy slupkowe, echo=FALSE}
 library(ggplot2)
@@ -182,11 +195,13 @@ grid.arrange(plot5, plot6, plot7, plot8, nrow = 2)
 
 Dalsze wykresy pokazują, że o kredyt aplikuje zdecydowanie **mniej** osób na **samozatrudnieniu** oraz **bez historii kredytowej**. Biorąc pod uwagę obszar zamieszkania, najwięcej jest osób z obszarów półmiejskich, następnie z obszarów wiejskich, a najmniej osób z miast. Zdecydowanie **więcej** jest **udzielonych kredytów** niż tych odrzuconych.
 
-# 5. Analiza opisowa
+## 5. Analiza opisowa
 
 Pierwszym etapem analiz wszelkiego typu danych jest ich **analiza opisowa**. Pozwala ona lepiej zrozumieć dane oraz wyciągnąć odpowienie wnioski.
 
-**5.1. Statystyki opisowe** pomagają szybko zrozumieć, jakie wartości dominują, jak bardzo dane są zróżnicowane i czy występują jakieś nietypowe przypadki. Dzięki nim mogliśmy np. sprawdzić, jaki jest przeciętny dochód wnioskodawcy, jak bardzo dochody różnią się między aplikantami, albo czy w danych są osoby, które odstają od reszty.
+### 5.1. Statystyki opisowe
+
+**Statystyki opisowe** pomagają szybko zrozumieć, jakie wartości dominują, jak bardzo dane są zróżnicowane i czy występują jakieś nietypowe przypadki. Dzięki nim mogliśmy np. sprawdzić, jaki jest przeciętny dochód wnioskodawcy, jak bardzo dochody różnią się między aplikantami, albo czy w danych są osoby, które odstają od reszty.
 
 ```{r wczytanie nowej bazy, echo =FALSE}
 
@@ -245,7 +260,9 @@ data1 %>%
 
 Tabela przedstawia **rozkład przychodu na jedną osobę w gospodarstwie domowym** w podziale na **status kredytowy**, gdzie **0** oznacza osoby, którym kredytu nie przyznano (*N = 192*), a **1** oznacza osoby, które otrzymały kredyt (*N = 422*).
 
-**5.2.** **Korelacja** pokazuje, czy i jak mocno dwie zmienne są ze sobą powiązane.
+### 5.2. Korelacja
+
+**Korelacja** pokazuje, czy i jak mocno dwie zmienne są ze sobą powiązane.
 
 U nas wygląda to następująco:
 
